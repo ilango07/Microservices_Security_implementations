@@ -27,11 +27,16 @@ public class AuthService {
     private final RefreshTokenService refreshTokenService;
 
     public AuthResponse register(RegisterRequest request) {
+        if(userRepo.existsByUsername(request.getUsername())) {
+            throw new ApiException(HttpStatus.CONFLICT, "Username already exists");
+        }
+
         if(userRepo.existsByEmail(request.getEmail())) {
             throw new ApiException(HttpStatus.CONFLICT, "Email already exists");
         }
         User user = User.builder()
                 .email(request.getEmail())
+                .username(request.getUsername())
                 .password(passwordEncoder.encode(request.getPassword()))
                 .role(Role.USER)
                 .provider(AuthProvider.LOCAL)
@@ -41,6 +46,7 @@ public class AuthService {
         User savedUser = userRepo.save(user);
         return AuthResponse.builder()
                 .userId(savedUser.getId())
+                .username(savedUser.getUsername())
                 .email(savedUser.getEmail())
                 .role(savedUser.getRole().name())
                 .build();
@@ -68,6 +74,7 @@ public class AuthService {
         return AuthResponse.builder()
                 .userId(user.getId())
                 .email(user.getEmail())
+                .username(user.getUsername())
                 .role(user.getRole().name())
                 .accessToken(accessToken)
                 .refreshToken(refreshToken.getToken())
@@ -95,6 +102,7 @@ public class AuthService {
         return AuthResponse.builder()
                 .userId(user.getId())
                 .email(user.getEmail())
+                .username(user.getUsername())
                 .role(user.getRole().name())
                 .accessToken(accessToken)
                 .refreshToken(newRefreshToken.getToken())
@@ -113,6 +121,7 @@ public class AuthService {
         }
         return UserResponse.builder()
                 .id(user.getId())
+                .username(user.getUsername())
                 .email(user.getEmail())
                 .role(user.getRole())
                 .build();
