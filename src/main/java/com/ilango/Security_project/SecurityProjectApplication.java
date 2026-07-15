@@ -1,5 +1,6 @@
 package com.ilango.Security_project;
 
+import jakarta.persistence.Lob;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
 

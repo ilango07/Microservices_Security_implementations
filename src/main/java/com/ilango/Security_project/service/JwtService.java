@@ -6,6 +6,7 @@ import io.jsonwebtoken.Jwts;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.io.Decoders;
 import jakarta.annotation.PostConstruct;
+import lombok.Getter;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.security.core.userdetails.UserDetails;
 import org.springframework.stereotype.Service;
@@ -16,7 +17,7 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.function.Function;
 
-import static io.jsonwebtoken.Jwts.SIG.HS256;
+
 
 
 @Service
@@ -26,6 +27,7 @@ public class JwtService {
     private String secret;
 
     @Value("${jwt.access-expiration}")
+    @Getter
     private long accessExpiration;
 
     private SecretKey secretKey;
@@ -41,7 +43,10 @@ public class JwtService {
      */
 
     public String generateAccessToken(User user) {
-        return generateToken(new HashMap<>(), user);
+        Map<String,Object> extraClaims = new HashMap<>();
+        extraClaims.put("userId", user.getId());
+        extraClaims.put("role", user.getRole());
+        return generateToken(extraClaims, user);
     }
 
     /**
@@ -49,7 +54,7 @@ public class JwtService {
      */
 
     public String generateToken(
-            Map<String, Object> extraClaims,
+            Map<String,Object> extraClaims,
             UserDetails userDetails
     ) {
 
@@ -58,7 +63,7 @@ public class JwtService {
                 .subject(userDetails.getUsername())
                 .issuedAt(new Date())
                 .expiration(new Date(System.currentTimeMillis() + accessExpiration))
-                .signWith(secretKey,HS256)
+                .signWith(secretKey,Jwts.SIG.HS256)
                 .compact();
     }
 
@@ -122,4 +127,5 @@ public class JwtService {
                 .parseSignedClaims(token)
                 .getPayload();
     }
+
 }
