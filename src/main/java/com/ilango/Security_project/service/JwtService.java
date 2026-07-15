@@ -3,6 +3,7 @@ package com.ilango.Security_project.service;
 import com.ilango.Security_project.entity.User;
 import io.jsonwebtoken.Claims;
 import io.jsonwebtoken.Jwts;
+import io.jsonwebtoken.SignatureAlgorithm;
 import io.jsonwebtoken.security.Keys;
 import io.jsonwebtoken.io.Decoders;
 import jakarta.annotation.PostConstruct;
